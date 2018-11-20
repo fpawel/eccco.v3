@@ -303,8 +303,9 @@
                                                 <TextBlock Text="О программе" />
                                             </StackPanel>
                                         </MenuItem.Header>
-
-
+                                    </MenuItem>
+                                    <MenuItem Header="Открыть папку с данными" Click="MenuItem_Click_4">
+                                        
                                     </MenuItem>
 
 

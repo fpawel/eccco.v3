@@ -8,6 +8,7 @@ type Id = string
 
 [<AutoOpen>]
  module private Helpers = 
+    
     let usefile<'a> (path:string) (x:FileMode) (f : FileStream -> 'a)= 
         try
             use file = new FileStream( path, x ) 
@@ -30,22 +31,20 @@ type Id = string
         |> Either.leftSome
 
     module Path = 
-        let data = 
-            let x = Path.Combine( exepath, "Batches" ) 
-            if Directory.Exists x |> not then 
-                Directory.CreateDirectory x |> ignore
-            x
-        let baddata = lazy (                
-            let x = Path.Combine( exepath, "__CORRUPTED__" ) 
-            if Directory.Exists x |> not then 
-                Directory.CreateDirectory x |> ignore
-            x )
-            
+        
+        let appDataDir = 
+            let appDataDir = 
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+            let dir = Path.Combine(appDataDir, "eccco.v3")
+            if not <| Directory.Exists dir then
+                let x = Directory.CreateDirectory dir
+                assert x.Exists
+            dir
 
         let batchFolder canCreate id (dt:DateTime)  = 
             let (~%%) = string
             let month = dt.ToString("MMM", System.Globalization.CultureInfo.InvariantCulture)
-            let path = Path.Combine(data, %% dt.Year, sprintf "%d-%s" dt.Month month, %% dt.Day, id )
+            let path = Path.Combine(appDataDir, %% dt.Year, sprintf "%d-%s" dt.Month month, %% dt.Day, id )
             if canCreate then
                 createDirectory path
             { FileName = path }
@@ -53,29 +52,20 @@ type Id = string
         let batchFileName canCreate id dt  =             
             { FileName = Path.Combine( (batchFolder canCreate id dt).FileName, sprintf "%s.batch"  id ) }
             
-    let moveCorrupted (src:string) = 
-        let filename = Path.GetFileName src
-        log.Warn ( sprintf "Файл %s повреждён!" filename )
-        try 
-            let dest = ( Path.Combine(Path.baddata.Force(), filename) )
-            if File.Exists dest then
-                File.Delete dest |> ignore
-            File.Move( src, dest ) 
-        with e ->
-            log.Error( sprintf  "Ошибка переноса файла %s, %A" filename e.Message )
-            log.Debug( sprintf  "%A" e)
-
     let getBatchesInfo() =
-        let files = Directory.GetFiles( Path.data, "*.batch", SearchOption.AllDirectories)
+        let files = Directory.GetFiles( Path.appDataDir, "*.batch", SearchOption.AllDirectories)
         let r = 
             [   for filename in files do
                     match   readFile {FileName=filename} FSharpBin.deserialize<BatchInfo>  with
-                    | Error x ->  moveCorrupted filename                    
+                    | Error error ->  
+                        log.Error(sprintf "%s: %s" filename error)
                     | Ok x -> yield x ]   
         r
 
 
 module Path =
+    let appDataDir = Path.appDataDir
+
     let year year = 
         let x = Path.batchFolder false "-" (DateTime(year,1,1) )
         x.FileName 

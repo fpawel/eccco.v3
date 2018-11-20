@@ -156,6 +156,11 @@ namespace UI
             this.PopupAbout.IsOpen = true;
         }
 
-        
+        private void MenuItem_Click_4(object sender, RoutedEventArgs e)
+        {
+            dynamic d = this.DataContext;
+            string s = d["AppDataDir"];
+            System.Diagnostics.Process.Start(s);
+        }
     }
 }

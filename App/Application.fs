@@ -57,6 +57,8 @@ module private InitializeApplication =
         d.["ReadFlashCommand"] <- Work.readFlash.Perform
         d.["WriteFlashCommand"] <- Work.writelash.Perform
 
+        d.["AppDataDir"] <- Repository.Path.appDataDir
+
         d.["AppVersion"] <- 
             try
                 Reflection.Assembly.GetExecutingAssembly().GetName().Version                
