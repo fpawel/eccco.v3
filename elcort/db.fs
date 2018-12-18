@@ -14,8 +14,7 @@ open System.Windows.Forms
 //let repository_path = @"E:\User\Projects\VS2018\EccCO.v2\App\bin\Release" 
 // @"C:\Users\fpawel\Documents\Visual Studio 2015\Projects\Analit\EccCO.v2\App\bin\Release" 
 
-module old = 
-    open EccCO.v2
+module old =     
     type PartyInfo = DataModel.BatchInfo
     type Product = DataModel.Product
     type Party = DataModel.Batch
@@ -100,29 +99,13 @@ let exportProduct x (party_id:int64) (place:int) (old_product:old.Product) (old_
     cmd.Parameters.AddWithValue("@old_product_id", old_product.Id) |> ignore
     cmd.Parameters.AddWithValue("@old_serial", serial) |> ignore
         
-    let new_product_id = cmd.ExecuteScalar() :?> int64
+    cmd.ExecuteNonQuery() |> ignore
 
-    [   for a in old_product.CustomTermo do
-            yield a.T, (a.I, a.K)
-    ]
-    |> Map.ofList
-    |> Map.toList
-    |> List.iter (fun ( t,(i,k)) -> 
-        let cmd = new SQLiteCommand(x.conn)
-        cmd.CommandText <- """
-INSERT INTO product_temperature_current_k_sens (product_id, temperature, current, k_sens)
-VALUES (@product_id, @temperature, @current, @k_sens);"""
-        cmd.Parameters.Add("@product_id", dbt.Int64).Value <- new_product_id
-        cmd.Parameters.Add("@temperature", dbt.Decimal).Value <- t
-        cmd.AddDecimalParam "@current" i
-        cmd.AddDecimalParam "@k_sens" k
-        cmd.ExecuteNonQuery() |> ignore )
-
-let exportParty x old_party_id old_party_date = 
+let exportParty x old_party_id = 
 
         let old_party = 
-            match EccCO.v2.Repository.loadParty old_party_id old_party_date with
-            | Err err -> failwith err 
+            match Repository.get old_party_id  with
+            | Error err -> failwith err 
             | Ok x -> x
 
         
@@ -132,18 +115,18 @@ let exportParty x old_party_id old_party_date =
             
             INSERT INTO party (created_at, old_party_id, product_type_name, concentration1, concentration2, concentration3, note,
             min_fon, max_fon, max_d_fon, min_k_sens20, max_k_sens20,
-    min_d_temp, max_d_temp, min_k_sens50, max_k_sens50, max_d_not_measured) 
+    min_d_temp, max_d_temp, min_k_sens50, max_k_sens50, max_d_not_measured, points_method) 
                 VALUES
                     (@created_at, @old_party_id, @product_type_name, @concentration1, @concentration2, @concentration3, @note,
                     @min_fon, @max_fon, @max_d_fon, @min_k_sens20, @max_k_sens20,
-                    @min_d_temp, @max_d_temp, @min_k_sens50, @max_k_sens50, @max_d_not_measured
+                    @min_d_temp, @max_d_temp, @min_k_sens50, @max_k_sens50, @max_d_not_measured, @points_method
                     );
             SELECT last_insert_rowid();"""
         cmd.Parameters.Add("@min_fon", DbType.Object).Value <- null 
         let t = 
-            match EccCO.v2.Var.productTypes |> List.tryFind(fun x -> x.Name = old_party.ProductType) with
+            match Var.productTypes |> Seq.tryFind(fun x -> x.Name = old_party.ProductType) with
             | Some x -> x
-            | _ -> EccCO.v2.Var.productTypes.[0]
+            | _ -> Var.productTypes.[0]
 
         
         [   "@max_fon", t.Ifon_max
@@ -167,6 +150,9 @@ let exportParty x old_party_id old_party_date =
             cmd.Parameters.Add("@note", DbType.String).Value <- old_party.Name
         else
             cmd.Parameters.Add("@note", DbType.Object).Value <- null      
+
+        cmd.Parameters.Add("@points_method", DbType.Int64).Value <- t.CalculateTermoMethod.number
+        
 
              
         
@@ -202,7 +188,7 @@ let exportParties x =
             resetCursor()
             printf "%s: skip" s
         else
-            exportParty x old_party.Id  old_party.Date
+            exportParty x old_party.Id 
             resetCursor()
             printf "%s" s 
         )  
@@ -266,7 +252,7 @@ let getExportPartyProducts x party_id =
     products
 
 let readExportParty x (r:SQLiteDataReader)  =    
-    let p = old.Party.createNew ( r.["created_at"] :?> DateTime )
+    let p = old.Party.createNew ()
     p.Name <- 
         if r.["note"] = dbNull then "" else r.["note"] :?> string
     p.ProductType <- r.["product_type_name"] :?> string
@@ -288,7 +274,7 @@ let readExportParty x (r:SQLiteDataReader)  =
     p
 
 
-let import () = 
+let export () = 
 
     let appName = "elco"
     
@@ -320,7 +306,7 @@ let import () =
     let cmd = new SQLiteCommand(conn, CommandText = initdb.sql)
     cmd.ExecuteNonQuery() |> ignore
 
-    printfn "%A: read imported parties" DateTime.Now
+    printfn "%A: read exported parties" DateTime.Now
     cmd.CommandText <- "SELECT old_party_id FROM party WHERE old_party_id NOT NULL;"
 
     let r = cmd.ExecuteReader()    
@@ -331,13 +317,13 @@ let import () =
         } |> Set.ofSeq
     r.Close()
 
-    printfn "imported parties: %d" importedParties.Count    
+    printfn "exported parties: %d" importedParties.Count    
 
-    printfn "%A: read old parties" DateTime.Now
+    printfn "%A: read old parties: %A" DateTime.Now appDataDir
 
     
     let oldParties = 
-        EccCO.v2.Repository.getInfoList ()
+        Repository.getInfoList ()
         |> List.sortBy(fun x -> x.Date.Ticks * (-1L))
 
     printfn "%A: old parties: %d" DateTime.Now oldParties.Length 

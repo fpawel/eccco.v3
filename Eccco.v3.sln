@@ -9,7 +9,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Library1", "Library1\Librar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "UI\UI.csproj", "{97D9E73F-A8F8-4FAC-B65D-F9F953E199F8}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "elchese", "elchese\elchese.fsproj", "{7134CA4F-038A-4440-A2AF-7E056A93AF7D}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "elcort", "elcort\elcort.fsproj", "{7134CA4F-038A-4440-A2AF-7E056A93AF7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -15,76 +15,63 @@ type Id = string
             f file |> Ok
         with e ->             
             log.Debug ( sprintf "Ошибка обращения к файлу %s, %A, %A" path x e )
-            Error e.Message
-
-    type FileName = { FileName : string }
+            Error e.Message    
 
     let readFile<'T> filename (func : BinaryReader -> 'T)  =        
-        usefile filename.FileName FileMode.Open <| fun file ->
+        usefile filename FileMode.Open <| fun file ->
             use reader = new BinaryReader(file)
             func reader 
 
     let writeFile<'T> filename (func : BinaryWriter -> unit)  =         
-        usefile filename.FileName FileMode.Create <| fun file ->        
+        usefile filename FileMode.Create <| fun file ->        
             use writer = new BinaryWriter(file)
             func writer 
         |> Either.leftSome
 
-    module Path = 
-        
-        let appDataDir = 
-            let appDataDir = 
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
-            let dir = Path.Combine(appDataDir, "eccco.v3")
-            if not <| Directory.Exists dir then
-                let x = Directory.CreateDirectory dir
-                assert x.Exists
-            dir
+module Path = 
+       
+    
+    let batchFolder canCreate id (dt:DateTime)  = 
+        let (~%%) = string
+        let month = dt.ToString("MMM", System.Globalization.CultureInfo.InvariantCulture)
+        let path = Path.Combine(appDataDir, %% dt.Year, sprintf "%d-%s" dt.Month month, %% dt.Day, id )
+        if canCreate then
+            createDirectory path
+        path
 
-        let batchFolder canCreate id (dt:DateTime)  = 
-            let (~%%) = string
-            let month = dt.ToString("MMM", System.Globalization.CultureInfo.InvariantCulture)
-            let path = Path.Combine(appDataDir, %% dt.Year, sprintf "%d-%s" dt.Month month, %% dt.Day, id )
-            if canCreate then
-                createDirectory path
-            { FileName = path }
-
-        let batchFileName canCreate id dt  =             
-            { FileName = Path.Combine( (batchFolder canCreate id dt).FileName, sprintf "%s.batch"  id ) }
+    let batchFileName canCreate id dt  =             
+        Path.Combine( (batchFolder canCreate id dt), sprintf "%s.batch"  id )
             
-    let getBatchesInfo() =
-        let files = Directory.GetFiles( Path.appDataDir, "*.batch", SearchOption.AllDirectories)
-        let r = 
-            [   for filename in files do
-                    match   readFile {FileName=filename} FSharpBin.deserialize<BatchInfo>  with
-                    | Error error ->  
-                        log.Error(sprintf "%s: %s" filename error)
-                    | Ok x -> yield x ]   
-        r
-
-
-module Path =
-    let appDataDir = Path.appDataDir
 
     let year year = 
-        let x = Path.batchFolder false "-" (DateTime(year,1,1) )
-        x.FileName 
+        let x = batchFolder false "-" (DateTime(year,1,1) )
+        x 
         |> Path.GetDirectoryName
         |> Path.GetDirectoryName
         |> Path.GetDirectoryName
     let month year month = 
-        let x = Path.batchFolder false "-" (DateTime(year,month,1) )
-        x.FileName 
+        let x = batchFolder false "-" (DateTime(year,month,1) )
+        x 
         |> Path.GetDirectoryName
         |> Path.GetDirectoryName
 
     let day year month day = 
-        let x = Path.batchFolder false "-" (DateTime(year,month,day) )
-        x.FileName 
+        let x = batchFolder false "-" (DateTime(year,month,day) )
+        x 
         |> Path.GetDirectoryName
 
     let batch id dateTime = 
-        (Path.batchFolder false id dateTime).FileName
+        (batchFolder false id dateTime)
+
+let getBatchesInfo() =
+    let files = Directory.GetFiles( appDataDir, "*.batch", SearchOption.AllDirectories)
+    let r = 
+        [   for filename in files do
+                match   readFile filename FSharpBin.deserialize<BatchInfo>  with
+                | Error error ->  
+                    log.Error(sprintf "%s: %s" filename error)
+                | Ok x -> yield x ]   
+    r
   
 [<AutoOpen>]
 module private Helpers1 = 
@@ -92,9 +79,9 @@ module private Helpers1 =
 
     let load id dt =
         let fileName = Path.batchFileName false id dt
-        if File.Exists fileName.FileName |> not then
+        if File.Exists fileName |> not then
             batchesInfo := !batchesInfo |> List.filter( fun y -> y.Id <> id)
-            Error ("не найден файл " + fileName.FileName)
+            Error ("не найден файл " + fileName)
         else
             readFile fileName <| fun reader ->
                 let x = FSharpBin.deserialize<Batch> reader
@@ -149,9 +136,9 @@ let remove id =
     | None -> Some ("удаляемая партия не найдена - " + id)
     | Some batchInfo ->
         let filename = Path.batchFileName false id batchInfo.Date
-        if File.Exists filename.FileName |>  not then Some ("удаляемая партия не найдена - " + filename.FileName) else
+        if File.Exists filename |>  not then Some ("удаляемая партия не найдена - " + filename) else
         try            
-            Directory.Delete( (Path.batchFolder false id batchInfo.Date).FileName, true )
+            Directory.Delete( (Path.batchFolder false id batchInfo.Date), true )
             batchesInfo := !batchesInfo |> List.filter( fun y -> y.Id <> id)
             None
         with e ->

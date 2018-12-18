@@ -19,12 +19,12 @@ let writeToFile fileName x =
     with e ->
         sprintf "Ошибка записи файла %A\n%A" (Path.GetFileName fileName) e |> log.Error
 
-let jsonFile<'a> configName dummy = 
+let jsonConfig<'a> configName dummy = 
     let dummy() = 
         printfn "%s- по умолчанию" configName
         dummy()
 
-    let path =  IO.Path.Combine( exepath, sprintf "%s.config.json" configName)
+    let path =  IO.Path.Combine( appDataDir, sprintf "%s.config.json" configName)
     let config = 
     
         if IO.File.Exists path then 

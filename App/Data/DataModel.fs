@@ -100,7 +100,7 @@ type Batch =
         mutable PGS1 : decimal
         mutable PGS2 : decimal
         mutable PGS3 : decimal
-        Products : Product list }
+        mutable Products : Product list }
     static member createNew () = 
         let b = 
             {   Id = createNewId()

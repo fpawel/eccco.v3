@@ -27,13 +27,6 @@ CREATE TABLE IF NOT EXISTS product_type
   scale               REAL             NOT NULL,
   noble_metal_content REAL             NOT NULL,
   lifetime_months     INTEGER          NOT NULL CHECK (lifetime_months > 0),
-  lc64                BOOLEAN          NOT NULL
-    CONSTRAINT boolean_lc64
-      CHECK (lc64 IN (0, 1)),
-  points_method       INTEGER          NOT NULL
-    CONSTRAINT points_method_2_or_3
-      CHECK (points_method IN (2, 3)),
-
   FOREIGN KEY (gas_name) REFERENCES gas (gas_name),
   FOREIGN KEY (units_name) REFERENCES units (units_name)
 );
@@ -49,16 +42,17 @@ CREATE TABLE IF NOT EXISTS party
   concentration2     REAL                NOT NULL DEFAULT 50 CHECK (concentration2 >= 0),
   concentration3     REAL                NOT NULL DEFAULT 100 CHECK (concentration3 >= 0),
   note               TEXT,
-
+  points_method      INTEGER             NOT NULL
+    CHECK (points_method IN (2, 3))               DEFAULT 2,
   min_fon            REAL                         DEFAULT -1,
   max_fon            REAL                         DEFAULT 2,
   max_d_fon          REAL                         DEFAULT 3,
   min_k_sens20       REAL                         DEFAULT 0.08,
   max_k_sens20       REAL                         DEFAULT 0.335,
-  min_d_temp         REAL                         DEFAULT 0,
-  max_d_temp         REAL                         DEFAULT 3,
   min_k_sens50       REAL                         DEFAULT 110,
   max_k_sens50       REAL                         DEFAULT 150,
+  min_d_temp         REAL                         DEFAULT 0,
+  max_d_temp         REAL                         DEFAULT 3,
   max_d_not_measured REAL                         DEFAULT 5,
 
   FOREIGN KEY (product_type_name) REFERENCES product_type (product_type_name)
@@ -98,17 +92,6 @@ CREATE TABLE IF NOT EXISTS product
 
   FOREIGN KEY (product_type_name) REFERENCES product_type (product_type_name),
   FOREIGN KEY (party_id) REFERENCES party (party_id)
-    ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS product_temperature_current_k_sens
-(
-  product_id  INTEGER NOT NULL,
-  temperature REAL    NOT NULL,
-  current     REAL,
-  k_sens      REAL,
-  CONSTRAINT product_temperature_current_k_sens_primary_key UNIQUE (product_id, temperature),
-  FOREIGN KEY (product_id) REFERENCES product (product_id)
     ON DELETE CASCADE
 );
 
@@ -176,39 +159,68 @@ SELECT product_id,
        round(i13 - i_f_plus20, 3)                                              AS d_fon20,
        round(i_f_plus50 - i_f_plus20, 3)                                       AS d_fon50,
        round(not_measured - i_f_plus20, 3)                                     AS d_not_measured,
-       (firmware NOT NULL AND LENGTH(firmware) > 0)                            AS has_firmware
+       (firmware NOT NULL AND LENGTH(firmware) > 0)                            AS has_firmware,
+
+       round(min_fon, 3)                                                       AS min_fon,
+       round(max_fon, 3)                                                       AS max_fon,
+       round(max_d_fon, 3)                                                     AS max_d_fon,
+       round(min_k_sens20, 3)                                                  AS min_k_sens20,
+       round(max_k_sens20, 3)                                                  AS max_k_sens20,
+       round(min_d_temp, 3)                                                    AS min_d_temp,
+       round(max_d_temp, 3)                                                    AS max_d_temp,
+       round(min_k_sens50, 3)                                                  AS min_k_sens50,
+       round(max_k_sens50, 3)                                                  AS max_k_sens50,
+       round(max_d_not_measured, 3)                                            AS max_d_not_measured,
+       points_method
+
 FROM product
        INNER JOIN party ON party.party_id = product.party_id;
 
 CREATE VIEW IF NOT EXISTS product_info_2 AS
 SELECT q.*,
-       max_d_not_measured ISNULL OR abs(d_not_measured) < max_d_not_measured AS ok_d_not_measured,
-       max_d_temp ISNULL OR abs(d_fon50) < max_d_temp                        AS ok_d_fon50,
-       max_d_fon ISNULL OR abs(d_fon20) < max_d_fon                          AS ok_d_fon20,
-       min_k_sens20 ISNULL OR k_sens20 > min_k_sens20                        AS ok_min_k_sens20,
-       max_k_sens20 ISNULL OR k_sens20 < max_k_sens20                        AS ok_max_k_sens20,
-       min_k_sens50 ISNULL OR k_sens50 > min_k_sens50                        AS ok_min_k_sens50,
-       max_k_sens50 ISNULL OR k_sens50 < max_k_sens50                        AS ok_max_k_sens50,
-       i_f_plus20 < max_fon                                                  AS ok_fon20,
+
+       max_d_temp ISNULL OR (d_fon50 NOTNULL) AND abs(d_fon50) < max_d_temp  AS ok_d_fon50,
+
+       max_d_fon ISNULL OR (d_fon20 NOTNULL) AND abs(d_fon20) < max_d_fon    AS ok_d_fon20,
+
+       min_k_sens20 ISNULL OR (k_sens20 NOTNULL) AND k_sens20 > min_k_sens20 AS ok_min_k_sens20,
+
+       max_k_sens20 ISNULL OR (k_sens20 NOTNULL) AND k_sens20 < max_k_sens20 AS ok_max_k_sens20,
+
+       min_k_sens50 ISNULL OR (k_sens50 NOTNULL) AND k_sens50 > min_k_sens50 AS ok_min_k_sens50,
+
+       max_k_sens50 ISNULL OR (k_sens50 NOTNULL) AND k_sens50 < max_k_sens50 AS ok_max_k_sens50,
+
+
+       min_fon ISNULL OR (i_f_plus20 NOTNULL) AND i_f_plus20 > min_fon       AS ok_min_fon20,
+       max_fon ISNULL OR (i_f_plus20 NOTNULL) AND i_f_plus20 < max_fon       AS ok_max_fon20,
+
+       min_fon ISNULL OR (i13 NOTNULL) AND i13 > min_fon                     AS ok_min_fon20_2,
+       max_fon ISNULL OR (i13 NOTNULL) AND i13 < max_fon                     AS ok_max_fon20_2,
+
+       max_d_not_measured ISNULL OR
+       (d_not_measured NOTNULL) AND abs(d_not_measured) < max_d_not_measured AS ok_d_not_measured,
+
        gas.code                                                              AS gas_code,
        units.code                                                            AS units_code,
        gas.gas_name,
        units.units_name,
        scale,
        noble_metal_content,
-       lifetime_months,
-       lc64,
-       points_method
+       lifetime_months
 FROM product_info_1 q
-       INNER JOIN party ON party.party_id = q.party_id
        INNER JOIN product_type ON product_type.product_type_name = q.applied_product_type_name
        INNER JOIN gas ON product_type.gas_name = gas.gas_name
        INNER JOIN units ON product_type.units_name = units.units_name;
 
 CREATE VIEW IF NOT EXISTS product_info AS
 SELECT *,
-       NOT ok_d_not_measured AND ok_d_fon50 AND ok_d_fon20 AND ok_min_k_sens20 AND ok_max_k_sens20 AND
-       ok_min_k_sens50 AND ok_max_k_sens50 AND ok_fon20 AS ok
+       ok_d_not_measured AND
+       ok_d_fon50 AND ok_d_fon20 AND
+       ok_min_k_sens20 AND ok_max_k_sens20 AND
+       ok_min_k_sens50 AND ok_max_k_sens50 AND
+       ok_min_fon20 AND ok_max_fon20 AND
+       ok_min_fon20_2 AND ok_max_fon20_2 AS ok
 FROM product_info_2 q;
 
 
@@ -241,39 +253,34 @@ REPLACE INTO product_type (product_type_name,
                            units_name,
                            scale,
                            noble_metal_content,
-                           lifetime_months,
-                           lc64,
-                           points_method)
-VALUES ('035', '035', 'CO', 'мг/м3', 200, 0.1626, 18, 0, 3),
-       ('035(2)', '035', 'CO', 'мг/м3', 200, 0.1456, 12, 0, 3),
-       ('035-59', NULL, 'CO', 'об. дол. %', 0.5, 0.1891, 12, 0, 3),
-       ('035-60', NULL, 'CO', 'мг/м3', 200, 0.1891, 12, 0, 3),
-       ('035-61', NULL, 'CO', 'ppm', 2000, 0.1891, 12, 0, 3),
-       ('035-80', NULL, 'CO', 'мг/м3', 200, 0.1456, 12, 0, 3),
-       ('035-81', NULL, 'CO', 'мг/м3', 1500, 0.1456, 12, 0, 3),
-       ('035-92', NULL, 'CO', 'об. дол. %', 0.5, 0.1891, 12, 0, 3),
-       ('035-93', NULL, 'CO', 'млн-1', 200, 0.1891, 12, 0, 3),
-       ('035-94', NULL, 'CO', 'млн-1', 2000, 0.1891, 12, 0, 3),
-       ('035-105', NULL, 'CO', 'мг/м3', 200, 0.1456, 12, 0, 3),
-       ('100', NULL, 'CO', 'мг/м3', 200, 0.0816, 12, 1, 3),
-       ('100-05', NULL, 'CO', 'мг/м3', 50, 0.0816, 12, 1, 3),
-       ('100-10', NULL, 'CO', 'мг/м3', 200, 0.0816, 12, 1, 3),
-       ('100-15', NULL, 'CO', 'мг/м3', 50, 0.0816, 12, 1, 3),
-       ('035-40', NULL, 'CO', 'мг/м3', 200, 0.1456, 12, 0, 2),
-       ('035-21', NULL, 'CO', 'мг/м3', 200, 0.1456, 12, 0, 2),
-       ('130-01', NULL, 'CO', 'мг/м3', 200, 0.1626, 12, 0, 3),
-       ('035-70', NULL, 'CO', 'мг/м3', 200, 0.1626, 12, 0, 2),
-       ('130-08', NULL, 'CO', 'ppm', 100, 0.1162, 12, 0, 3),
-       ('035-117', NULL, 'NO₂', 'мг/м3', 200, 0.1626, 18, 1, 3),
-       ('010-18', NULL, 'O₂', 'об. дол. %', 21, 0, 12, 1, 3),
-       ('010-18', NULL, 'O₂', 'об. дол. %', 21, 0, 12, 1, 3),
-       ('035-111', NULL, 'CO', 'мг/м3', 200, 0.1626, 12, 1, 3);
-
+                           lifetime_months)
+VALUES ('035', '035', 'CO', 'мг/м3', 200, 0.1626, 18 ),
+       ('035(2)', '035', 'CO', 'мг/м3', 200, 0.1456, 12 ),
+       ('035-59', NULL, 'CO', 'об. дол. %', 0.5, 0.1891, 12),
+       ('035-60', NULL, 'CO', 'мг/м3', 200, 0.1891, 12),
+       ('035-61', NULL, 'CO', 'ppm', 2000, 0.1891, 12),
+       ('035-80', NULL, 'CO', 'мг/м3', 200, 0.1456, 12),
+       ('035-81', NULL, 'CO', 'мг/м3', 1500, 0.1456, 12),
+       ('035-92', NULL, 'CO', 'об. дол. %', 0.5, 0.1891, 12),
+       ('035-93', NULL, 'CO', 'млн-1', 200, 0.1891, 12),
+       ('035-94', NULL, 'CO', 'млн-1', 2000, 0.1891, 12),
+       ('035-105', NULL, 'CO', 'мг/м3', 200, 0.1456, 12),
+       ('100', NULL, 'CO', 'мг/м3', 200, 0.0816, 12),
+       ('100-05', NULL, 'CO', 'мг/м3', 50, 0.0816, 12),
+       ('100-10', NULL, 'CO', 'мг/м3', 200, 0.0816, 12),
+       ('100-15', NULL, 'CO', 'мг/м3', 50, 0.0816, 12),
+       ('035-40', NULL, 'CO', 'мг/м3', 200, 0.1456, 12),
+       ('035-21', NULL, 'CO', 'мг/м3', 200, 0.1456, 12),
+       ('130-01', NULL, 'CO', 'мг/м3', 200, 0.1626, 12),
+       ('035-70', NULL, 'CO', 'мг/м3', 200, 0.1626, 12),
+       ('130-08', NULL, 'CO', 'ppm', 100, 0.1162, 12),
+       ('035-117', NULL, 'NO₂', 'мг/м3', 200, 0.1626, 18),
+       ('010-18', NULL, 'O₂', 'об. дол. %', 21, 0, 12),
+       ('010-18', NULL, 'O₂', 'об. дол. %', 21, 0, 12),
+       ('035-111', NULL, 'CO', 'мг/м3', 200, 0.1626, 12);
 
 DELETE
 FROM party
 WHERE NOT EXISTS(SELECT product_id FROM product WHERE party.party_id = product.party_id);
-
-
 """
 

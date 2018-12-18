@@ -23,6 +23,11 @@ type CalculateTermoMethod  =
             | 0 -> Pt2
             | _ -> Pt3
 
+        member x.number = 
+            match x with
+            | Pt2 -> 2L
+            | Pt3 -> 3L
+
 [<AddINotifyPropertyChangedInterface>]
 type ComPortSets =
     {   mutable PortName : string
@@ -68,7 +73,7 @@ type ApplicatioSettings =
 
 
 let sets, save = 
-    TextConfig.jsonFile "app" <| fun () -> 
+    TextConfig.jsonConfig "app" <| fun () -> 
         {   PartyId = ""  
             CalculateTermoMethod = None
             HiddenDataGridProductsColumns = 

@@ -25,12 +25,12 @@ let logOfLevel (level : LogLevel) :  (string -> unit) =
 let rec exnRoot (exn:System.Exception) = 
     if exn.InnerException=null then exn else exnRoot exn.InnerException
 
-let exepath = 
-    try
-        IO.Path.GetDirectoryName(Reflection.Assembly.GetExecutingAssembly().Location)
-    with _ -> 
-        
-        Environment.CurrentDirectory
+let appDataDir =         
+    let dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "eccco.v3")
+    if not <| Directory.Exists dir then
+        let x = Directory.CreateDirectory dir
+        assert x.Exists
+    dir
 
 let tryGetCaseAttribute<'T,'a> (x:'a) = 
     let case,_ = FSharpValue.GetUnionFields(x, x.GetType() )

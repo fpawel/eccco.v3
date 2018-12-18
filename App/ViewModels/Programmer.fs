@@ -202,7 +202,7 @@ module private Helpers =
 
     let openFile = wpfCommnad1 <| fun () ->     
         let d = new Microsoft.Win32.OpenFileDialog()
-        d.InitialDirectory <- exepath
+        d.InitialDirectory <- appDataDir
         d.Title <- "Открыть любой файл"
         let r = d.ShowDialog()
         // Process open file dialog box results
@@ -217,7 +217,7 @@ module private Helpers =
 
     let saveFile = wpfCommnad1 <| fun () ->     
         let d = new Microsoft.Win32.SaveFileDialog()
-        d.InitialDirectory <- exepath
+        d.InitialDirectory <- appDataDir
         d.Title <- "Сохранить \"прошивку\" в файл"
         let r = d.ShowDialog()
         // Process open file dialog box results

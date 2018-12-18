@@ -57,7 +57,7 @@ module private InitializeApplication =
         d.["ReadFlashCommand"] <- Work.readFlash.Perform
         d.["WriteFlashCommand"] <- Work.writelash.Perform
 
-        d.["AppDataDir"] <- Repository.Path.appDataDir
+        d.["AppDataDir"] <- appDataDir
 
         d.["AppVersion"] <- 
             try

@@ -9,10 +9,10 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>elchese</RootNamespace>
     <AssemblyName>elchese</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <UseStandardResourceNames>true</UseStandardResourceNames>
-    <Name>elchese</Name>
+    <Name>elcort</Name>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
@@ -52,16 +52,9 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="utils\utils.fs" />
-    <Compile Include="utils\FSharpBin.fs" />
-    <Compile Include="utils\Range.fs" />
-    <Compile Include="EccCO.v2\DataModel.fs" />
-    <Compile Include="EccCO.v2\Var.fs" />
-    <Compile Include="EccCO.v2\Repository.fs" />
     <Compile Include="initdb.fs" />
     <Compile Include="db.fs" />
     <Compile Include="Program.fs" />
-    <None Include="Script1.fsx" />
     <None Include="App.config" />
     <Content Include="packages.config" />
   </ItemGroup>
@@ -108,6 +101,13 @@
     </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\App\App.fsproj">
+      <Name>App</Name>
+      <Project>{1d69ec81-9a36-44e9-98dd-5bf1670fac29}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.109.2\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.109.2\build\net46\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
