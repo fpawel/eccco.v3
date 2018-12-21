@@ -101,66 +101,101 @@ let exportProduct x (party_id:int64) (place:int) (old_product:old.Product) (old_
         
     cmd.ExecuteNonQuery() |> ignore
 
+let exportProductType x (t : Var.ProductType) = 
+    let cmd = new SQLiteCommand(x.conn)
+
+    let convGasName = function
+        | "H2S" -> "H₂S"
+        | "NH3" -> "NH₃"
+        | "NO2" -> "NO₂"
+        | "Cl2" -> "Cl₂"
+        | "SO2" -> "SO₂"
+        | "O2" -> "O₂"
+        | x -> x
+    
+    cmd.CommandText <- """            
+        INSERT OR
+        REPLACE INTO
+          product_type (product_type_name,
+                        display_name,
+                        gas_name,
+                        units_name,
+                        scale,
+                        noble_metal_content,
+                        lifetime_months)
+        VALUES (@product_type_name, @display_name, @gas_name, @units_name, @scale, @noble_metal_content, @lifetime_months);"""
+
+    cmd.Parameters.Add("@product_type_name", DbType.String).Value <- t.Name
+    cmd.Parameters.Add("@display_name", DbType.String).Value <- t.Name
+    cmd.Parameters.Add("@gas_name", DbType.String).Value <- convGasName t.Gas
+    cmd.Parameters.Add("@units_name", DbType.String).Value <- t.Units
+    cmd.Parameters.Add("@scale", DbType.Decimal).Value <- t.Scale
+    cmd.Parameters.Add("@noble_metal_content", DbType.Decimal).Value <- t.NobleMetalContent
+    cmd.Parameters.Add("@lifetime_months", DbType.Int64).Value <- t.LifetimeWarrianty
+
+    cmd.ExecuteNonQuery() |> ignore
+
 let exportParty x old_party_id = 
 
-        let old_party = 
-            match Repository.get old_party_id  with
-            | Error err -> failwith err 
-            | Ok x -> x
-
+    let old_party = 
+        match Repository.get old_party_id  with
+        | Error err -> failwith err 
+        | Ok x -> x
         
-        let cmd = new SQLiteCommand(x.conn)
+    let cmd = new SQLiteCommand(x.conn)
     
-        cmd.CommandText <- """
+    let t = 
+        match Var.productTypes |> Seq.tryFind(fun x -> x.Name = old_party.ProductType) with
+        | Some x -> x
+        | _ -> Var.productTypes.[0]
+
+    cmd.CommandText <- """
             
-            INSERT INTO party (created_at, old_party_id, product_type_name, concentration1, concentration2, concentration3, note,
-            min_fon, max_fon, max_d_fon, min_k_sens20, max_k_sens20,
-    min_d_temp, max_d_temp, min_k_sens50, max_k_sens50, max_d_not_measured, points_method) 
-                VALUES
-                    (@created_at, @old_party_id, @product_type_name, @concentration1, @concentration2, @concentration3, @note,
-                    @min_fon, @max_fon, @max_d_fon, @min_k_sens20, @max_k_sens20,
-                    @min_d_temp, @max_d_temp, @min_k_sens50, @max_k_sens50, @max_d_not_measured, @points_method
-                    );
-            SELECT last_insert_rowid();"""
-        cmd.Parameters.Add("@min_fon", DbType.Object).Value <- null 
-        let t = 
-            match Var.productTypes |> Seq.tryFind(fun x -> x.Name = old_party.ProductType) with
-            | Some x -> x
-            | _ -> Var.productTypes.[0]
-
+        INSERT INTO party (created_at, old_party_id, product_type_name, concentration1, concentration2, concentration3, note,
+        min_fon, max_fon, max_d_fon, min_k_sens20, max_k_sens20,
+min_d_temp, max_d_temp, min_k_sens50, max_k_sens50, max_d_not_measured, points_method) 
+            VALUES
+                (@created_at, @old_party_id, @product_type_name, @concentration1, @concentration2, @concentration3, @note,
+                @min_fon, @max_fon, @max_d_fon, @min_k_sens20, @max_k_sens20,
+                @min_d_temp, @max_d_temp, @min_k_sens50, @max_k_sens50, @max_d_not_measured, @points_method
+                );
+        SELECT last_insert_rowid();"""
+    cmd.Parameters.Add("@min_fon", DbType.Object).Value <- null 
         
-        [   "@max_fon", t.Ifon_max
-            "@max_d_fon", t.DeltaIfon_max
-            "@min_k_sens20", t.Ksns_min
-            "@max_k_sens20", t.Ksns_max
-            "@min_k_sens50", t.Ks40_min
-            "@max_k_sens50", t.Ks40_max
-            "@min_d_temp", t.Delta_t_min
-            "@max_d_temp", t.Delta_t_max
-            "@max_d_not_measured", t.Delta_nei_max] 
-        |> List.iter(fun (k,v) -> cmd.AddDecimalParam k v)
+    [   "@max_fon", t.Ifon_max
+        "@max_d_fon", t.DeltaIfon_max
+        "@min_k_sens20", t.Ksns_min
+        "@max_k_sens20", t.Ksns_max
+        "@min_k_sens50", t.Ks40_min
+        "@max_k_sens50", t.Ks40_max
+        "@min_d_temp", t.Delta_t_min
+        "@max_d_temp", t.Delta_t_max
+        "@max_d_not_measured", t.Delta_nei_max] 
+    |> List.iter(fun (k,v) -> cmd.AddDecimalParam k v)
                     
-        cmd.Parameters.Add("@created_at", DbType.DateTime).Value <- old_party.Date
-        cmd.Parameters.Add("@old_party_id", DbType.String).Value <- old_party.Id
-        cmd.Parameters.Add("@product_type_name", DbType.String).Value <- old_party.ProductType        
-        cmd.Parameters.Add("@concentration1", DbType.Decimal).Value <- old_party.PGS1
-        cmd.Parameters.Add("@concentration2", DbType.Decimal).Value <- old_party.PGS2
-        cmd.Parameters.Add("@concentration3", DbType.Decimal).Value <- old_party.PGS3
-        if old_party.Name <> "" then 
-            cmd.Parameters.Add("@note", DbType.String).Value <- old_party.Name
-        else
-            cmd.Parameters.Add("@note", DbType.Object).Value <- null      
-
-        cmd.Parameters.Add("@points_method", DbType.Int64).Value <- t.CalculateTermoMethod.number
+    cmd.Parameters.Add("@created_at", DbType.DateTime).Value <- old_party.Date
+    cmd.Parameters.Add("@old_party_id", DbType.String).Value <- old_party.Id
+    cmd.Parameters.Add("@product_type_name", DbType.String).Value <- old_party.ProductType        
+    cmd.Parameters.Add("@concentration1", DbType.Decimal).Value <- old_party.PGS1
+    cmd.Parameters.Add("@concentration2", DbType.Decimal).Value <- old_party.PGS2
+    cmd.Parameters.Add("@concentration3", DbType.Decimal).Value <- old_party.PGS3
+    if old_party.Name <> "" then 
+        cmd.Parameters.Add("@note", DbType.String).Value <- old_party.Name
+    else
+        cmd.Parameters.Add("@note", DbType.Object).Value <- null      
+               
+    cmd.Parameters.Add("@points_method", DbType.Int64).Value <- t.CalculateTermoMethod.number
         
-
-             
-        
+    try
         let party_id =cmd.ExecuteScalar() :?> int64
-    
         for place = 0 to old_party.Products.Length - 1 do
             let old_product = old_party.Products.[place]
             exportProduct x party_id place  old_product  old_party 
+    with _ ->
+        printfn "%A" old_party.ProductType
+        reraise()
+    
+        
 
 let exportParties x = 
 
@@ -305,7 +340,7 @@ let export () =
     printfn "%A: initialize sqlite database" DateTime.Now
     let cmd = new SQLiteCommand(conn, CommandText = initdb.sql)
     cmd.ExecuteNonQuery() |> ignore
-
+        
     printfn "%A: read exported parties" DateTime.Now
     cmd.CommandText <- "SELECT old_party_id FROM party WHERE old_party_id NOT NULL;"
 
@@ -317,6 +352,7 @@ let export () =
         } |> Set.ofSeq
     r.Close()
 
+    
     printfn "exported parties: %d" importedParties.Count    
 
     printfn "%A: read old parties: %A" DateTime.Now appDataDir
@@ -335,6 +371,12 @@ let export () =
     }
 
     printfn "%A: start export" DateTime.Now
+
+    
+    printfn "%s" "export products types..."
+    for t in Var.productTypes do
+        exportProductType x t
+
     exportParties x
     
     //let cmd = new SQLiteCommand(conn)
