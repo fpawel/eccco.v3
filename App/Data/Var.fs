@@ -96,13 +96,14 @@ type ProductType =
 let productTypes, saveProductTypes = TextConfig.jsonConfig "productTypes" <| fun () -> 
     let Pt3 = CalculateTermo.Method.Pt3
     let Pt2 = CalculateTermo.Method.Pt2
-    [   {   Name = "035"
-            Gas = "CO"
-            Units = "мг/м3"
-            Scale = 200M
-            NobleMetalContent = 0.1626M
-            LifetimeWarrianty = 18
-            Is64 = false
+    [   
+        {   Name = "010-18"
+            Gas = "O2"
+            Units = "об. дол. %"
+            Scale = 30M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
             CalculateTermoMethod = Pt3
             TermoPoints = []
             Ifon_max = None
@@ -116,7 +117,7 @@ let productTypes, saveProductTypes = TextConfig.jsonConfig "productTypes" <| fun
             Delta_nei_max = None }         
         
 
-        {   Name = "035(2)"
+        {   Name = "035"
             Gas = "CO"
             Units = "мг/м3"
             Scale = 200M
@@ -385,10 +386,10 @@ let productTypes, saveProductTypes = TextConfig.jsonConfig "productTypes" <| fun
             Is64 = true
             CalculateTermoMethod = Pt3
             TermoPoints = []
-            Ifon_max = None
+            Ifon_max = Some 1M
             DeltaIfon_max = None
-            Ksns_min = None
-            Ksns_max = None
+            Ksns_min = Some 0.08M
+            Ksns_max = Some 0.175M
             Delta_t_min = None
             Delta_t_max = None
             Ks40_min = None
@@ -463,7 +464,7 @@ let productTypes, saveProductTypes = TextConfig.jsonConfig "productTypes" <| fun
             NobleMetalContent = 0.1626M
             LifetimeWarrianty = 12
             Is64 = false
-            CalculateTermoMethod = Pt2
+            CalculateTermoMethod = Pt3
             TermoPoints = []
             Ifon_max = Some 1.51M
             DeltaIfon_max = Some 3M
@@ -496,66 +497,6 @@ let productTypes, saveProductTypes = TextConfig.jsonConfig "productTypes" <| fun
             Delta_nei_max = Some 5M }         
         
 
-        {   Name = "035-117"
-            Gas = "NO2"
-            Units = "мг/м3"
-            Scale = 200M
-            NobleMetalContent = 0.1626M
-            LifetimeWarrianty = 18
-            Is64 = true
-            CalculateTermoMethod = Pt3
-            TermoPoints = []
-            Ifon_max = None
-            DeltaIfon_max = None
-            Ksns_min = None
-            Ksns_max = None
-            Delta_t_min = None
-            Delta_t_max = None
-            Ks40_min = None
-            Ks40_max = None
-            Delta_nei_max = None }         
-        
-
-        {   Name = "010-18"
-            Gas = "O2"
-            Units = "об. дол. %"
-            Scale = 21M
-            NobleMetalContent = 0M
-            LifetimeWarrianty = 12
-            Is64 = true
-            CalculateTermoMethod = Pt3
-            TermoPoints = []
-            Ifon_max = None
-            DeltaIfon_max = None
-            Ksns_min = None
-            Ksns_max = None
-            Delta_t_min = None
-            Delta_t_max = None
-            Ks40_min = None
-            Ks40_max = None
-            Delta_nei_max = None }         
-        
-
-        {   Name = "010-18"
-            Gas = "O2"
-            Units = "об. дол. %"
-            Scale = 21M
-            NobleMetalContent = 0M
-            LifetimeWarrianty = 12
-            Is64 = true
-            CalculateTermoMethod = Pt3
-            TermoPoints = []
-            Ifon_max = None
-            DeltaIfon_max = None
-            Ksns_min = None
-            Ksns_max = None
-            Delta_t_min = None
-            Delta_t_max = None
-            Ks40_min = None
-            Ks40_max = None
-            Delta_nei_max = None }         
-        
-
         {   Name = "035-111"
             Gas = "CO"
             Units = "мг/м3"
@@ -576,7 +517,1147 @@ let productTypes, saveProductTypes = TextConfig.jsonConfig "productTypes" <| fun
             Delta_nei_max = Some 5M }         
         
 
-        {   Name = "035-111-2"
+        {   Name = "010-15"
+            Gas = "O2"
+            Units = "об. дол. %"
+            Scale = 30M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "100-11"
+            Gas = "H2S"
+            Units = "мг/м3"
+            Scale = 40M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "100-12"
+            Gas = "H2S"
+            Units = "мг/м3"
+            Scale = 20M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "100-02"
+            Gas = "H2S"
+            Units = "мг/м3"
+            Scale = 20M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "100-13"
+            Gas = "SO2"
+            Units = "мг/м3"
+            Scale = 20M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "100-03"
+            Gas = "SO2"
+            Units = "мг/м3"
+            Scale = 20M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "100-14"
+            Gas = "NO2"
+            Units = "мг/м3"
+            Scale = 10M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "100-04"
+            Gas = "NO2"
+            Units = "мг/м3"
+            Scale = 10M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "100-01"
+            Gas = "H2S"
+            Units = "мг/м3"
+            Scale = 40M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "100-16"
+            Gas = "Cl2"
+            Units = "мг/м3"
+            Scale = 25M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "100-17"
+            Gas = "НCl"
+            Units = "мг/м3"
+            Scale = 25M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-10"
+            Gas = "H2S"
+            Units = "мг/м3"
+            Scale = 40M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-62"
+            Gas = "H2S"
+            Units = "мг/м3"
+            Scale = 40M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-82"
+            Gas = "H2S"
+            Units = "мг/м3"
+            Scale = 40M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-102"
+            Gas = "H2S"
+            Units = "мг/м3"
+            Scale = 40M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-113"
+            Gas = "H2S"
+            Units = "мг/м3"
+            Scale = 40M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-52"
+            Gas = "Cl2"
+            Units = "мг/м3"
+            Scale = 25M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-63"
+            Gas = "Cl2"
+            Units = "мг/м3"
+            Scale = 25M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-84"
+            Gas = "Cl2"
+            Units = "мг/м3"
+            Scale = 25M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-103"
+            Gas = "Cl2"
+            Units = "мг/м3"
+            Scale = 25M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-115"
+            Gas = "Cl2"
+            Units = "мг/м3"
+            Scale = 25M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-89"
+            Gas = "Cl2"
+            Units = "мг/м3"
+            Scale = 50M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-116"
+            Gas = "Cl2"
+            Units = "мг/м3"
+            Scale = 50M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-54"
+            Gas = "SO2"
+            Units = "мг/м3"
+            Scale = 20M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-83"
+            Gas = "SO2"
+            Units = "мг/м3"
+            Scale = 20M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-114"
+            Gas = "SO2"
+            Units = "мг/м3"
+            Scale = 20M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-128"
+            Gas = "SO2"
+            Units = "мг/м3"
+            Scale = 40M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-129"
+            Gas = "SO2"
+            Units = "мг/м3"
+            Scale = 200M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-130"
+            Gas = "SO2"
+            Units = "мг/м3"
+            Scale = 3000M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-65"
+            Gas = "SO2"
+            Units = "ppm"
+            Scale = 200M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-95"
+            Gas = "SO2"
+            Units = "ppm"
+            Scale = 200M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-66"
+            Gas = "SO2"
+            Units = "ppm"
+            Scale = 3000M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-96"
+            Gas = "SO2"
+            Units = "ppm"
+            Scale = 20M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-55"
+            Gas = "NO2"
+            Units = "мг/м3"
+            Scale = 10M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-87"
+            Gas = "NO2"
+            Units = "мг/м3"
+            Scale = 10M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-75"
+            Gas = "NO2"
+            Units = "мг/м3"
+            Scale = 10M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-117"
+            Gas = "NO2"
+            Units = "мг/м3"
+            Scale = 10M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-131"
+            Gas = "NO2"
+            Units = "мг/м3"
+            Scale = 100M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-132"
+            Gas = "NO2"
+            Units = "мг/м3"
+            Scale = 200M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-133"
+            Gas = "NO2"
+            Units = "мг/м3"
+            Scale = 500M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-134"
+            Gas = "NO2"
+            Units = "мг/м3"
+            Scale = 3000M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-69"
+            Gas = "NO2"
+            Units = "ppm"
+            Scale = 140M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-99"
+            Gas = "NO2"
+            Units = "ppm"
+            Scale = 140M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-69"
+            Gas = "NO2"
+            Units = "об. дол. %"
+            Scale = 0.014M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-100"
+            Gas = "NO2"
+            Units = "об. дол. %"
+            Scale = 0.014M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035-118"
+            Gas = "HCl"
+            Units = "мг/м3"
+            Scale = 30M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-10"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 150M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-11"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 150M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-12"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 2000M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-15"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 600M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-16"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 600M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-17"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 2000M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-31"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 150M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-32"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 2000M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-20"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 150M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = true
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-33"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 600M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "060-34"
+            Gas = "NH3"
+            Units = "мг/м3"
+            Scale = 2000M
+            NobleMetalContent = 0M
+            LifetimeWarrianty = 12
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035"
             Gas = "CO"
             Units = "мг/м3"
             Scale = 200M
@@ -593,7 +1674,27 @@ let productTypes, saveProductTypes = TextConfig.jsonConfig "productTypes" <| fun
             Delta_t_max = None
             Ks40_min = None
             Ks40_max = None
-            Delta_nei_max = None }  
+            Delta_nei_max = None }         
+        
+
+        {   Name = "035"
+            Gas = "CO"
+            Units = "мг/м3"
+            Scale = 200M
+            NobleMetalContent = 0.1626M
+            LifetimeWarrianty = 18
+            Is64 = false
+            CalculateTermoMethod = Pt3
+            TermoPoints = []
+            Ifon_max = None
+            DeltaIfon_max = None
+            Ksns_min = None
+            Ksns_max = None
+            Delta_t_min = None
+            Delta_t_max = None
+            Ks40_min = None
+            Ks40_max = None
+            Delta_nei_max = None }         
     ] |> ResizeArray<ProductType>
 
 let productTypeOfBatch (x:Batch) = 

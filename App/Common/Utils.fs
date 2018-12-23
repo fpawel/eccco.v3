@@ -26,7 +26,10 @@ let rec exnRoot (exn:System.Exception) =
     if exn.InnerException=null then exn else exnRoot exn.InnerException
 
 let appDataDir =         
-    let dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "eccco.v3")
+    let mutable dir = Environment.GetEnvironmentVariable("MYAPPDATA") 
+    if dir = "" then
+        dir <- Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+    dir <- Path.Combine(dir, "Аналитприбор", "eccco.v3")
     if not <| Directory.Exists dir then
         let x = Directory.CreateDirectory dir
         assert x.Exists

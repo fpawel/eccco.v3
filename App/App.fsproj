@@ -145,6 +145,11 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary1\ClassLibrary1.csproj">
+      <Name>ClassLibrary1</Name>
+      <Project>{d8cd4b67-ed86-4c5b-aebe-28696e847c6b}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Library1\Library1.fsproj">
       <Name>Library1</Name>
       <Project>{f5a3ff5e-47b7-4f55-b1bf-c8ffc365a21b}</Project>

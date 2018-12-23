@@ -160,4 +160,10 @@ let getLast () =
     load batchInfo.Id batchInfo.Date 
 
 
+let elcoAppDir =
+    let mutable s = Environment.GetEnvironmentVariable("MYAPPDATA") 
+    if s = "" then
+        s <- Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+    Path.Combine(s, "Аналитприбор", "elco")
+
    

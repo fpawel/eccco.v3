@@ -42,14 +42,8 @@ let (|JInt32|_|) = function
 let jempty = JObject ( Map.empty )
 
 [<AutoOpen>]
-module private ``распознание json из тескста`` = 
-    open FParsec
-    open FParsec.Primitives
-    
+module private ParseJson = 
     type R<'T,'Error> = FSharp.Core.Result<'T,'Error>
-
-    
-
     type Parser<'t> = Parser<'t, unit>
     let jnumber  =
         // -?[0-9]+(\.[0-9]*)?([eE][+-]?[0-9]+)?
@@ -155,24 +149,24 @@ let pretyFormat x =
     | R.Ok x -> toString x
     | _ -> "{}"
 
+let private isStringMap (tx:Type) = 
+    let x = tx.GetGenericArguments()
+    tx.IsGenericType && tx.GetGenericTypeDefinition() = typedefof<Map<string,_>> &&                
+    x.Length=2 &&
+    x.[0]=typeof<string>
+
 [<AutoOpen>]
-module private ``сериализация json`` = 
-    open Microsoft.FSharp.Reflection 
+module private Serialize = 
+    open Microsoft.FSharp.Reflection     
+    open System.Net
 
-    let isStringMap (tx:Type) = 
-        let x = tx.GetGenericArguments()
-        tx.IsGenericType && tx.GetGenericTypeDefinition() = typedefof<Map<string,_>> &&                
-        x.Length=2 &&
-        x.[0]=typeof<string>
-
-    let isJsonSequense (tx:Type) = 
+    let private isJsonSequense (tx:Type) = 
         if not tx.IsGenericType then false else
         let genType = tx.GetGenericTypeDefinition()
         genType = typedefof<list<_>> || 
         genType = typedefof<Set<_>> ||
         genType = typedefof<ObservableCollection<_>> ||
         genType = typedefof<ResizeArray<_>>
-        
 
     let rec serialize (converters : (Type * (obj -> Json)) list) (x : obj)   = 
         let serialize = serialize converters 
@@ -186,7 +180,7 @@ module private ``сериализация json`` =
         let (==>) x y = x, y |> int64 |> JInt
         let jobj = Map.ofList >> JObject
         match x with
-        | :? string as x -> JString x
+        | :? string as x -> JString ( ClassLibrary1.Class1.EncodeNonAsciiCharacters(x))
         | :? decimal as x -> JDecimal x
         | :? float as x -> JDecimal ( decimal x)
         | :? single as x -> JDecimal ( decimal x)
@@ -280,7 +274,10 @@ module private ``сериализация json`` =
                 |> Map.ofList |> JObject
             else sprintf "Не найдено конструктора Json для %A" tx |> failwith
             
-                
+[<AutoOpen>]
+module private Deserialize = 
+    open Microsoft.FSharp.Reflection                 
+    open System.Net
 
     let makeGenericType (baseType : Type) (types : Type list) =  
         if (not baseType.IsGenericTypeDefinition) then
@@ -302,11 +299,12 @@ module private ``сериализация json`` =
         list
         |> List.foldBack add items
 
+
     let jsonToObjConverters = 
         let box (x:obj) = box x |> Some
         let changeType (x:obj) (tx:Type) : obj option =  Convert.ChangeType(x, tx) |> Some
         [   yield typeof<string>, function 
-                | JString x -> box x 
+                | JString x -> box (ClassLibrary1.Class1.DecodeEncodedNonAsciiCharacters(x)) 
                 | JInt x -> sprintf "%d" x |> box 
                 | JDecimal x -> sprintf "%g" x |> box 
                 | JNull -> box ""
@@ -362,6 +360,7 @@ module private ``сериализация json`` =
             yield typeof<bool>, function  JBool x -> box x | _ -> None ]
 
     let objlist : obj list -> obj [] = List.rev >> List.toArray
+    
     let jsonToTypedObj = 
         [   (fun (tx:Type) -> tx.IsGenericType && ( tx.GetGenericTypeDefinition() = typedefof<ResizeArray<_>> || 
                                                     tx.GetGenericTypeDefinition() = typedefof<ObservableCollection<_>>) ),
@@ -442,13 +441,17 @@ module private ``сериализация json`` =
             (fun tx -> tx.IsArray), fun tx src cont ->
                 let valueType = tx.GetElementType()            
                 match src with 
+                | JNull  -> 
+                    let result = Array.CreateInstance( valueType, 0 )
+                    box result |> R.Ok
+                    
                 | JList jxs  -> 
                     let result = Array.CreateInstance( valueType, jxs.Length )
                     jxs                    
                     |> List.choose ( cont valueType >> rightSome) 
                     |> List.iteri( fun n y ->  result.SetValue( y, n ) )
                     box result |> R.Ok
-                | _ -> R.Error "елемент не является массивом"
+                | _ -> R.Error ( "элемент не является массивом: " + toString src)
 
             (fun tx -> FSharpType.IsTuple tx), fun tx src cont ->
                 let tes = FSharpType.GetTupleElements(tx)
@@ -548,7 +551,7 @@ module private ``сериализация json`` =
             | None -> R.Error( sprintf "Не найден конвертор json для типа %A" tx)
             | Some(_, f) -> f tx src deserialize
 
-let fromJson<'T> addJsonToObj src = 
+let deserialize<'T> addJsonToObj src = 
     let jsonToObj = 
         Seq.append jsonToObjConverters addJsonToObj
         |> Seq.distinctBy( fun (x,_) -> x )
@@ -559,14 +562,12 @@ let fromJson<'T> addJsonToObj src =
         | R.Error x -> R.Error x
     with e ->  R.Error e.Message
 
-let toJson = serialize 
+let stringify x = serialize [] x |> toString 
 
-let fromObj x = toJson [] x |> toString 
-
-let toObj<'T> x = 
+let parse<'T> x = 
     match fromString x with
     | R.Error x -> R.Error x
-    | R.Ok x -> fromJson<'T> [] x
+    | R.Ok x -> deserialize<'T> [] x
 
 
 

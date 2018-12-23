@@ -515,6 +515,32 @@ let setDataContext (d:Dynamic) =
                     p.Is_20 <- Isens
             | _ -> ()  )
 
+    let exportPartyFileName = IO.Path.Combine(Repository.elcoAppDir, "export-party.json")
+
+    d.["SaveFile"] <- wpfCommnad1 <| fun () -> 
+        IO.File.WriteAllBytes
+            (   exportPartyFileName, 
+                curentPartyInfo.Party.Party 
+                |>Json.stringify 
+                |> System.Text.Encoding.UTF8.GetBytes )
+
+        UI.Log.Jouranl.add "Экспорт: успешно" "" NLog.LogLevel.Info |> ignore
+        
+    d.["OpenFile"] <- wpfCommnad1 <| fun () ->
+        
+        match 
+            IO.File.ReadAllBytes(exportPartyFileName)
+            |> System.Text.Encoding.UTF8.GetString
+            |> Json.parse<DataModel.Batch> with
+        | Ok x ->  
+            curentPartyInfo.Party <- createNewPartyViewModel(x)
+
+            Repository.save x
+            parties.openParty(x)
+            UI.Log.Jouranl.add "Импорт: успешно" "" NLog.LogLevel.Info |> ignore
+
+        | Error err -> failwithf "%s" err
+
 let products() = curentPartyInfo.Party.Products |> Array.toList
 let checkedProducts() = 
     products()

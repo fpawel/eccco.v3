@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS units
 CREATE TABLE IF NOT EXISTS product_type
 (
   product_type_name   TEXT PRIMARY KEY NOT NULL,
-  display_name        TEXT,
   gas_name            TEXT             NOT NULL,
   units_name          TEXT             NOT NULL,
   scale               REAL             NOT NULL,
@@ -62,8 +61,10 @@ CREATE TABLE IF NOT EXISTS product
 (
   product_id        INTEGER PRIMARY KEY NOT NULL,
   party_id          INTEGER             NOT NULL,
-  serial            INTEGER CHECK ( serial ISNULL OR serial > 0 ),
-  place             INTEGER             NOT NULL CHECK (place >= 0),
+  serial            INTEGER
+    CHECK ( serial ISNULL OR serial > 0 ),
+  place             INTEGER             NOT NULL
+    CHECK (place >= 0),
   product_type_name TEXT,
   note              TEXT,
 
@@ -82,7 +83,11 @@ CREATE TABLE IF NOT EXISTS product
   i17               REAL,
   not_measured      REAL,
   firmware          BLOB,
-  production        BOOLEAN             NOT NULL CHECK (production IN (0, 1)) DEFAULT 0,
+  production        BOOLEAN             NOT NULL
+    CHECK (production IN (0, 1)) DEFAULT 0,
+
+  points_method     INTEGER
+    CHECK (points_method IN (2, 3)),
 
   old_product_id    TEXT,
   old_serial        INTEGER,
@@ -171,7 +176,11 @@ SELECT product_id,
        round(min_k_sens50, 3)                                                  AS min_k_sens50,
        round(max_k_sens50, 3)                                                  AS max_k_sens50,
        round(max_d_not_measured, 3)                                            AS max_d_not_measured,
-       points_method
+       product.points_method AS points_method,
+       (CASE (product.points_method ISNULL)
+          WHEN 1 THEN party.points_method
+          WHEN 0
+            THEN product.points_method END)                                    AS applied_points_method
 
 FROM product
        INNER JOIN party ON party.party_id = product.party_id;
@@ -244,6 +253,7 @@ VALUES ('CO', 0x11),
        ('O₂', 0x88),
        ('NO', 0x99),
        ('HCl', 0xAA);
+       
 
 DELETE
 FROM party

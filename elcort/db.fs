@@ -48,6 +48,12 @@ let exportProduct x (party_id:int64) (place:int) (old_product:old.Product) (old_
     match old_product.Serial with
     | None -> ()
     | Some serial ->
+
+    let ctm = Alchemy.getCalcTermoMethod old_party old_product
+    let ctm2 = 
+        match Var.productTypes |> Seq.tryFind(fun x -> x.Name = old_party.ProductType) with
+        | Some x -> x.CalculateTermoMethod
+        | _ -> Var.productTypes.[0].CalculateTermoMethod
         
     let cmd = new SQLiteCommand(x.conn)
     cmd.CommandText <- """
@@ -57,12 +63,12 @@ let exportProduct x (party_id:int64) (place:int) (old_product:old.Product) (old_
 
                     i_f_minus20, i_f_plus20, i_f_plus50, i_s_minus20, i_s_plus20, i_s_plus50,
 
-                    firmware, production, old_product_id, old_serial)
+                    firmware, production, old_product_id, old_serial, points_method)
             VALUES        
                 (@party_id, @serial, @place, @product_type_name,  
                 @i13, @i24, @i35, @i26, @i17, @not_measured, 
                 @i_f_minus20, @i_f_plus20, @i_f_plus50, @i_s_minus20, @i_s_plus20, @i_s_plus50,
-                @firmware, @production, @old_product_id, @old_serial);
+                @firmware, @production, @old_product_id, @old_serial, @points_method);
                 SELECT last_insert_rowid();"""
 
     cmd.Parameters.Add("@party_id", dbt.Int64).Value <- party_id
@@ -98,6 +104,12 @@ let exportProduct x (party_id:int64) (place:int) (old_product:old.Product) (old_
     cmd.Parameters.AddWithValue("@production", old_product.IsReportIncluded) |> ignore
     cmd.Parameters.AddWithValue("@old_product_id", old_product.Id) |> ignore
     cmd.Parameters.AddWithValue("@old_serial", serial) |> ignore
+
+    if ctm <> ctm2 then
+        cmd.Parameters.Add("@points_method", DbType.Int64).Value <- ctm.number
+    else
+        cmd.Parameters.Add("@points_method", DbType.Object).Value <- null
+
         
     cmd.ExecuteNonQuery() |> ignore
 
@@ -111,22 +123,21 @@ let exportProductType x (t : Var.ProductType) =
         | "Cl2" -> "Cl₂"
         | "SO2" -> "SO₂"
         | "O2" -> "O₂"
+        | "НCl" -> "HCl"
         | x -> x
     
     cmd.CommandText <- """            
         INSERT OR
         REPLACE INTO
-          product_type (product_type_name,
-                        display_name,
+          product_type (product_type_name,                        
                         gas_name,
                         units_name,
                         scale,
                         noble_metal_content,
                         lifetime_months)
-        VALUES (@product_type_name, @display_name, @gas_name, @units_name, @scale, @noble_metal_content, @lifetime_months);"""
+        VALUES (@product_type_name, @gas_name, @units_name, @scale, @noble_metal_content, @lifetime_months);"""
 
     cmd.Parameters.Add("@product_type_name", DbType.String).Value <- t.Name
-    cmd.Parameters.Add("@display_name", DbType.String).Value <- t.Name
     cmd.Parameters.Add("@gas_name", DbType.String).Value <- convGasName t.Gas
     cmd.Parameters.Add("@units_name", DbType.String).Value <- t.Units
     cmd.Parameters.Add("@scale", DbType.Decimal).Value <- t.Scale

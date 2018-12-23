@@ -303,10 +303,11 @@
                                                 <TextBlock Text="О программе" />
                                             </StackPanel>
                                         </MenuItem.Header>
-                                    </MenuItem>
-                                    <MenuItem Header="Открыть папку с данными" Click="MenuItem_Click_4">
-                                        
-                                    </MenuItem>
+                                    </MenuItem>                                    
+                                    <MenuItem Header="Открыть папку с данными" Click="MenuItem_Click_4" />
+                                    <Separator />
+                                    <MenuItem Header="Загрузить из файла" Command="{Binding [OpenFile]}"  />
+                                    <MenuItem Header="Сохранить в файл" Command="{Binding [SaveFile]}" />
 
 
 

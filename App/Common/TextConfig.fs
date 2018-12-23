@@ -29,7 +29,7 @@ let jsonConfig<'a> configName dummy =
     
         if IO.File.Exists path then 
             try
-                match IO.File.ReadAllText(path) |> Json.toObj<'a> with
+                match IO.File.ReadAllText(path) |> Json.parse<'a> with
                 | Ok x -> x
                 | Error x -> 
                     sprintf "ошибла файла конфигурации %s\n%s" ( Path.GetFileName path) x |> log.Error
@@ -39,6 +39,6 @@ let jsonConfig<'a> configName dummy =
                 dummy()
         else
             dummy()
-    let save() = config |> Json.fromObj |> writeToFile path
+    let save() = config |> Json.stringify |> writeToFile path
     config, save
 

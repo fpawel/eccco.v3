@@ -6,6 +6,9 @@ open System.Diagnostics
 
 [<AutoOpen>]
 module private InitializeApplication = 
+    open UI
+    open PartiesView
+
     let initializeWPFApplication (app:System.Windows.Application) = 
 
         PresentationTraceSources.DataBindingSource.Switch.Level <- SourceLevels.Error
@@ -70,7 +73,6 @@ module private InitializeApplication =
 
     let initializeMainWindow (mainWindow:UI.MainWindow) = 
         let dataContext = createApplicationDataContext()       
-        
 
         dataContext.["ShowSummaryTable"] <- wpfCommnad1 <| fun () ->
             let w = mainWindow.SummaryTable
@@ -121,7 +123,7 @@ let run() =
         log.Fatal (sprintf "Необработанное исключение UI\n%A" e.Exception )
         e.Handled <- true
         UI.Log.Jouranl.add 
-            (sprintf "Необработанное исключение %A. Подробности в лог-файле." e.Exception.Message)
+            (sprintf "Необработанное исключение %A." e.Exception.Message)
             (sprintf "%A" e.Exception) 
             NLog.LogLevel.Fatal |> ignore)
 
