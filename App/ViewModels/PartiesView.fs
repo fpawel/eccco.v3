@@ -518,13 +518,16 @@ let setDataContext (d:Dynamic) =
     let exportPartyFileName = IO.Path.Combine(Repository.elcoAppDir, "export-party.json")
 
     d.["SaveFile"] <- wpfCommnad1 <| fun () -> 
+        let party = curentPartyInfo.Party.Party 
+        for p in party.Products do 
+            p.Flash <- [||]
         IO.File.WriteAllBytes
             (   exportPartyFileName, 
-                curentPartyInfo.Party.Party 
-                |>Json.stringify 
-                |> System.Text.Encoding.UTF8.GetBytes )
-
+                party |>Json.stringify |> System.Text.Encoding.UTF8.GetBytes )
+        parties.openParty( match Repository.get party.Id with Ok x -> x | Error err -> failwithf "%s" err)
         UI.Log.Jouranl.add "Экспорт: успешно" "" NLog.LogLevel.Info |> ignore
+
+        
         
     d.["OpenFile"] <- wpfCommnad1 <| fun () ->
         
@@ -532,10 +535,9 @@ let setDataContext (d:Dynamic) =
             IO.File.ReadAllBytes(exportPartyFileName)
             |> System.Text.Encoding.UTF8.GetString
             |> Json.parse<DataModel.Batch> with
-        | Ok x ->  
-            curentPartyInfo.Party <- createNewPartyViewModel(x)
-
+        | Ok x ->              
             Repository.save x
+            parties.removeCurentPartyTree()
             parties.openParty(x)
             UI.Log.Jouranl.add "Импорт: успешно" "" NLog.LogLevel.Info |> ignore
 

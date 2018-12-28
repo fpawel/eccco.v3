@@ -278,6 +278,7 @@ module private Serialize =
 module private Deserialize = 
     open Microsoft.FSharp.Reflection                 
     open System.Net
+    open System.Linq.Expressions
 
     let makeGenericType (baseType : Type) (types : Type list) =  
         if (not baseType.IsGenericTypeDefinition) then
@@ -361,6 +362,8 @@ module private Deserialize =
 
     let objlist : obj list -> obj [] = List.rev >> List.toArray
     
+    let mutable currentFiled = ""
+
     let jsonToTypedObj = 
         [   (fun (tx:Type) -> tx.IsGenericType && ( tx.GetGenericTypeDefinition() = typedefof<ResizeArray<_>> || 
                                                     tx.GetGenericTypeDefinition() = typedefof<ObservableCollection<_>>) ),
@@ -381,6 +384,8 @@ module private Deserialize =
                 fun (tx:Type) src cont ->
                     let valueType = tx.GetGenericArguments().[0]                    
                     match src with 
+                    | JNull  -> 
+                        makeListOf valueType [] |> R.Ok
                     | JList jxs  -> 
                         let values = 
                             jxs 
@@ -389,7 +394,7 @@ module private Deserialize =
                         | Some (R.Error x) -> R.Error x
                         | _ -> 
                             values |> List.choose rightSome |> makeListOf valueType |> R.Ok
-                    | _ -> R.Error "элемент не является списком"
+                    | _ -> R.Error ( sprintf "элемент не является списком: %s: %A"  currentFiled (toString src) )
 
             isStringMap,
                 fun tx src cont ->
@@ -508,14 +513,16 @@ module private Deserialize =
                 | _ ->  sprintf "не удалось десериализовать размеченное объединение %A %A %s" tx src (toString src)  |> R.Error
                    
             FSharpType.IsRecord, fun tx src cont ->             
-                FSharpType.GetRecordFields(tx) |> Array.fold( fun acc y ->
+                FSharpType.GetRecordFields(tx) |> Array.fold( fun acc y ->     
+                    currentFiled <- y.Name
+                    
                     match acc with 
                     | R.Error _ ->  acc
                     | R.Ok (acc : obj list) ->
                         match src with
                         | JObject jproperties ->
                             match Map.tryFind y.Name jproperties with
-                            | None ->                                 
+                            | None ->       
                                 if y.PropertyType.IsGenericType && y.PropertyType.GetGenericTypeDefinition() = typedefof<option<_>> then
                                     let case =  (FSharpType.GetUnionCases y.PropertyType).[0]
                                     let value = FSharpValue.MakeUnion(case, [||])
@@ -530,11 +537,17 @@ module private Deserialize =
                                     value::acc |> R.Ok 
                                 else
                                     R.Error( sprintf "нет значения поля %s.%s, %s" tx.Name y.Name (toString src) )
+                                        
                             | Some x -> 
                                 match cont y.PropertyType x  with
                                 | R.Ok value -> value::acc |> R.Ok 
                                 | R.Error x -> R.Error x
-                        | _ -> R.Error "элемент не является записью" ) (R.Ok [])
+                        | _ -> R.Error "элемент не является записью" 
+                        
+                        
+                    ) (R.Ok [])
+                    
+                        
                     |> function 
                     | R.Ok values ->  FSharpValue.MakeRecord( tx, objlist values) |> R.Ok
                     | R.Error x -> R.Error x  ]
